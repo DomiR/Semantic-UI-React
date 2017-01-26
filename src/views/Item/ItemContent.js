@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import cx from 'classnames'
 import React, { PropTypes } from 'react'
 
@@ -17,7 +18,7 @@ import ItemMeta from './ItemMeta'
 
 /**
  * An item can contain content
- **/
+ */
 function ItemContent(props) {
   const { children, className, content, description, extra, header, meta, verticalAlign } = props
   const classes = cx(
@@ -28,7 +29,7 @@ function ItemContent(props) {
   const rest = getUnhandledProps(ItemContent, props)
   const ElementType = getElementType(ItemContent, props)
 
-  if (children) {
+  if (!_.isNil(children)) {
     return <ElementType {...rest} className={classes}>{children}</ElementType>
   }
 

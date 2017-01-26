@@ -22,7 +22,7 @@ import ListList from './ListList'
 
 /**
  * A list groups related content
- **/
+ */
 function List(props) {
   const {
     animated,
@@ -64,7 +64,7 @@ function List(props) {
   const rest = getUnhandledProps(List, props)
   const ElementType = getElementType(List, props)
 
-  if (children) {
+  if (!_.isNil(children)) {
     return <ElementType {...rest} role='list' className={classes}>{children}</ElementType>
   }
 

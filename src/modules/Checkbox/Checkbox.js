@@ -1,3 +1,4 @@
+import _ from 'lodash/fp'
 import cx from 'classnames'
 import React, { PropTypes } from 'react'
 
@@ -11,22 +12,10 @@ import {
   META,
   useKeyOnly,
 } from '../../lib'
-
 const debug = makeDebugger('checkbox')
 
-const _meta = {
-  name: 'Checkbox',
-  type: META.TYPES.MODULE,
-  props: {
-    type: [
-      'checkbox',
-      'radio',
-    ],
-  },
-}
-
 /**
- * A checkbox allows a user to select a value from a small set of options, often binary
+ * A checkbox allows a user to select a value from a small set of options, often binary.
  * @see Form
  * @see Radio
  */
@@ -78,32 +67,38 @@ export default class Checkbox extends Component {
      */
     onClick: PropTypes.func,
 
-    /** Format as a radio element. This means it is an exclusive option.*/
+    /** Format as a radio element. This means it is an exclusive option. */
     radio: customPropTypes.every([
       PropTypes.bool,
       customPropTypes.disallow(['slider', 'toggle']),
     ]),
 
-    /** A checkbox can be read-only and unable to change states */
+    /** A checkbox can be read-only and unable to change states. */
     readOnly: PropTypes.bool,
 
-    /** Format to emphasize the current selection state */
+    /** Format to emphasize the current selection state. */
     slider: customPropTypes.every([
       PropTypes.bool,
       customPropTypes.disallow(['radio', 'toggle']),
     ]),
 
-    /** Format to show an on or off choice */
+    /** Format to show an on or off choice. */
     toggle: customPropTypes.every([
       PropTypes.bool,
       customPropTypes.disallow(['radio', 'slider']),
     ]),
 
     /** HTML input type, either checkbox or radio. */
-    type: PropTypes.oneOf(_meta.props.type),
+    type: PropTypes.oneOf(['checkbox', 'radio']),
 
     /** The HTML input value. */
     value: PropTypes.string,
+
+    /** A checkbox can receive focus. */
+    tabIndex: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
+    ]),
   }
 
   static defaultProps = {
@@ -115,7 +110,10 @@ export default class Checkbox extends Component {
     'indeterminate',
   ]
 
-  static _meta = _meta
+  static _meta = {
+    name: 'Checkbox',
+    type: META.TYPES.MODULE,
+  }
 
   state = {}
 
@@ -168,6 +166,7 @@ export default class Checkbox extends Component {
       radio,
       readOnly,
       slider,
+      tabIndex,
       toggle,
       type,
       value,
@@ -192,6 +191,10 @@ export default class Checkbox extends Component {
     const rest = getUnhandledProps(Checkbox, this.props)
     const ElementType = getElementType(Checkbox, this.props)
 
+    let computedTabIndex
+    if (!_.isNil(tabIndex)) computedTabIndex = tabIndex
+    else computedTabIndex = disabled ? -1 : 0
+
     return (
       <ElementType {...rest} className={classes} onClick={this.handleClick} onChange={this.handleClick}>
         <input
@@ -200,7 +203,7 @@ export default class Checkbox extends Component {
           name={name}
           readOnly
           ref={this.handleRef}
-          tabIndex={0}
+          tabIndex={computedTabIndex}
           type={type}
           value={value}
         />

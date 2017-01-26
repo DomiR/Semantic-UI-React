@@ -35,7 +35,8 @@ const _meta = {
 
 /**
  * A menu displays grouped navigation actions.
- **/
+ * @see Dropdown
+ */
 class Menu extends Component {
   static propTypes = {
     /** An element type to render as (string or function). */
@@ -196,7 +197,7 @@ class Menu extends Component {
     const rest = getUnhandledProps(Menu, this.props)
     const ElementType = getElementType(Menu, this.props)
 
-    return <ElementType {...rest} className={classes}>{children || this.renderItems()}</ElementType>
+    return <ElementType {...rest} className={classes}>{_.isNil(children) ? this.renderItems() : children}</ElementType>
   }
 }
 

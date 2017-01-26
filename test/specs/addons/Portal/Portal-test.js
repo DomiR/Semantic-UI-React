@@ -271,14 +271,14 @@ describe('Portal', () => {
     })
   })
 
-  describe('openOnTriggerMouseOver', () => {
-    it('should not open portal on mouseover when not set', (done) => {
+  describe('openOnTriggerMouseEnter', () => {
+    it('should not open portal on mouseenter when not set', (done) => {
       const spy = sandbox.spy()
-      const trigger = <button onMouseOver={spy}>button</button>
-      const mouseOverDelay = 100
-      wrapperMount(<Portal trigger={trigger} mouseOverDelay={mouseOverDelay}><p>Hi</p></Portal>)
+      const trigger = <button onMouseEnter={spy}>button</button>
+      const mouseEnterDelay = 100
+      wrapperMount(<Portal trigger={trigger} mouseEnterDelay={mouseEnterDelay}><p>Hi</p></Portal>)
 
-      wrapper.find('button').simulate('mouseover')
+      wrapper.find('button').simulate('mouseenter')
       document.body.childElementCount.should.equal(0)
       spy.should.have.been.calledOnce()
 
@@ -286,28 +286,28 @@ describe('Portal', () => {
         document.body.childElementCount.should.equal(0)
         spy.should.have.been.calledOnce()
         done()
-      }, mouseOverDelay + 1)
+      }, mouseEnterDelay + 1)
     })
 
-    it('should open portal on mouseover when set', (done) => {
+    it('should open portal on mouseenter when set', (done) => {
       const spy = sandbox.spy()
-      const trigger = <button onMouseOver={spy}>button</button>
-      const mouseOverDelay = 100
+      const trigger = <button onMouseEnter={spy}>button</button>
+      const mouseEnterDelay = 100
       wrapperMount(
-        <Portal trigger={trigger} openOnTriggerMouseOver mouseOverDelay={mouseOverDelay}><p>Hi</p></Portal>
+        <Portal trigger={trigger} openOnTriggerMouseEnter mouseEnterDelay={mouseEnterDelay}><p>Hi</p></Portal>
       )
 
-      wrapper.find('button').simulate('mouseover')
+      wrapper.find('button').simulate('mouseenter')
       setTimeout(() => {
         document.body.childElementCount.should.equal(0)
         spy.should.have.been.calledOnce()
-      }, mouseOverDelay - 1)
+      }, mouseEnterDelay - 1)
 
       setTimeout(() => {
         document.body.lastElementChild.should.equal(wrapper.instance().node)
         spy.should.have.been.calledOnce()
         done()
-      }, mouseOverDelay + 1)
+      }, mouseEnterDelay + 1)
     })
   })
 
@@ -383,7 +383,7 @@ describe('Portal', () => {
   })
 
   describe('closeOnTriggerMouseLeave + closeOnPortalMouseLeave', () => {
-    it('should close portal on trigger mouseleave even when portal receives mouseover within limit', (done) => {
+    it('should close portal on trigger mouseleave even when portal receives mouseenter within limit', (done) => {
       const trigger = <button>button</button>
       const delay = 100
       wrapperMount(
@@ -392,9 +392,9 @@ describe('Portal', () => {
 
       wrapper.find('button').simulate('mouseleave')
 
-      // Fire a mouseOver on the portal within the time limit
+      // Fire a mouseEnter on the portal within the time limit
       setTimeout(() => {
-        domEvent.mouseOver(wrapper.instance().node.firstElementChild)
+        domEvent.mouseEnter(wrapper.instance().node.firstElementChild)
       }, delay - 1)
 
       // The portal should close because closeOnPortalMouseLeave not set
@@ -404,20 +404,20 @@ describe('Portal', () => {
       }, delay + 1)
     })
 
-    it('should not close portal on trigger mouseleave when portal receives mouseover within limit', (done) => {
+    it('should not close portal on trigger mouseleave when portal receives mouseenter within limit', (done) => {
       const trigger = <button>button</button>
       const delay = 100
       wrapperMount(
-        <Portal trigger={trigger} defaultOpen closeOnTriggerMouseLeave
-          closeOnPortalMouseLeave mouseLeaveDelay={delay}
-        ><p>Hi</p></Portal>
+        <Portal trigger={trigger} defaultOpen closeOnTriggerMouseLeave closeOnPortalMouseLeave mouseLeaveDelay={delay}>
+          <p>Hi</p>
+        </Portal>
       )
 
       wrapper.find('button').simulate('mouseleave')
 
-      // Fire a mouseOver on the portal within the time limit
+      // Fire a mouseEnter on the portal within the time limit
       setTimeout(() => {
-        domEvent.mouseOver(wrapper.instance().node.firstElementChild)
+        domEvent.mouseEnter(wrapper.instance().node.firstElementChild)
       }, delay - 1)
 
       // The portal should not have closed
@@ -507,6 +507,69 @@ describe('Portal', () => {
 
       domEvent.click(wrapper.instance().node.firstElementChild.parentNode)
       document.body.childElementCount.should.equal(0)
+    })
+  })
+
+  describe('focus', () => {
+    it('should take focus on first render', (done) => {
+      attachTo = document.createElement('div')
+      document.body.appendChild(attachTo)
+      const opts = { attachTo }
+      const portal = wrapperMount(<Portal defaultOpen><p>Hi</p></Portal>, opts)
+      setTimeout(() => {
+        const portalNode = portal.node.node.firstElementChild
+        expect(document.activeElement).to.equal(portalNode)
+        expect(portalNode.getAttribute('tabindex')).to.equal('-1')
+        expect(portalNode.style.outline).to.equal('none')
+        done()
+      })
+    })
+    it('should not take focus when mounted on portals that closeOnTriggerBlur', (done) => {
+      attachTo = document.createElement('div')
+      document.body.appendChild(attachTo)
+      const opts = { attachTo }
+      const portal = wrapperMount(<Portal defaultOpen closeOnTriggerBlur><p>Hi</p></Portal>, opts)
+      setTimeout(() => {
+        const portalNode = portal.node.node.firstElementChild
+        expect(document.activeElement).to.not.equal(portalNode)
+        expect(portalNode.getAttribute('tabindex')).to.not.equal('-1')
+        expect(portalNode.style.outline).to.not.equal('none')
+        done()
+      })
+    })
+    it('should not take focus on subsequent renders', (done) => {
+      attachTo = document.createElement('div')
+      document.body.appendChild(attachTo)
+      const opts = { attachTo }
+      const portal = wrapperMount(<Portal defaultOpen><input data-focus-me /></Portal>, opts)
+
+      setTimeout(() => {
+        const portalNode = portal.node.node.firstElementChild
+        expect(document.activeElement).to.equal(portalNode)
+
+        const input = document.querySelector('input[data-focus-me]')
+        input.focus()
+        expect(document.activeElement).to.equal(input)
+
+        portal.render()
+        expect(document.activeElement).to.equal(input)
+
+        done()
+      })
+    })
+    it('should restore focus when unmounted', (done) => {
+      const activeElement = document.activeElement
+      attachTo = document.createElement('div')
+      document.body.appendChild(attachTo)
+      const opts = { attachTo }
+      const portal = wrapperMount(<Portal open><p>Hi</p></Portal>, opts)
+      setTimeout(() => {
+        portal.setProps({
+          open: false,
+        })
+        expect(document.activeElement).to.equal(activeElement)
+        done()
+      })
     })
   })
 })

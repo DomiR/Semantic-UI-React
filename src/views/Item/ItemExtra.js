@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import cx from 'classnames'
 import React, { PropTypes } from 'react'
 
@@ -10,14 +11,14 @@ import {
 
 /**
  * An item can contain extra content meant to be formatted separately from the main content
- **/
+ */
 function ItemExtra(props) {
   const { children, className, content } = props
   const classes = cx(className, 'extra')
   const rest = getUnhandledProps(ItemExtra, props)
   const ElementType = getElementType(ItemExtra, props)
 
-  return <ElementType {...rest} className={classes}>{children || content}</ElementType>
+  return <ElementType {...rest} className={classes}>{_.isNil(children) ? content : children}</ElementType>
 }
 
 ItemExtra._meta = {

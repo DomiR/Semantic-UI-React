@@ -14,7 +14,7 @@ import Item from './Item'
 
 /**
  * A group of items
- **/
+ */
 function ItemGroup(props) {
   const { children, className, divided, items, link, relaxed } = props
   const classes = cx(
@@ -28,7 +28,7 @@ function ItemGroup(props) {
   const rest = getUnhandledProps(ItemGroup, props)
   const ElementType = getElementType(ItemGroup, props)
 
-  if (children) {
+  if (!_.isNil(children)) {
     return <ElementType {...rest} className={classes}>{children}</ElementType>
   }
 

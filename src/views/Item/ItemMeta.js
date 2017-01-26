@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import cx from 'classnames'
 import React, { PropTypes } from 'react'
 
@@ -10,14 +11,14 @@ import {
 
 /**
  * An item can contain content metadata.
- **/
+ */
 function ItemMeta(props) {
   const { children, className, content } = props
   const classes = cx(className, 'meta')
   const rest = getUnhandledProps(ItemMeta, props)
   const ElementType = getElementType(ItemMeta, props)
 
-  return <ElementType {...rest} className={classes}>{children || content}</ElementType>
+  return <ElementType {...rest} className={classes}>{_.isNil(children) ? content : children}</ElementType>
 }
 
 ItemMeta._meta = {

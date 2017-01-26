@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import cx from 'classnames'
 import React, { PropTypes } from 'react'
 
@@ -18,14 +19,14 @@ import ItemMeta from './ItemMeta'
 
 /**
  * An item view presents large collections of site content for display
- **/
+ */
 function Item(props) {
   const { children, className, content, description, extra, header, image, meta } = props
   const classes = cx(className, 'item')
   const rest = getUnhandledProps(Item, props)
   const ElementType = getElementType(Item, props)
 
-  if (children) {
+  if (!_.isNil(children)) {
     return <ElementType {...rest} className={classes}>{children}</ElementType>
   }
 
